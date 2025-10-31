@@ -21,5 +21,5 @@ void Drivetrain::runArcade(pros::Controller* controller) {
     int forward = controller->get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
     int turn = controller->get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
     // Use same sign inversion as previous ArcadeDriveCommand
-    arcadeDrive(forward, -turn);
+    arcadeDrive(forward, turn);
 }
