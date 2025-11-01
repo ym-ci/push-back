@@ -1,22 +1,22 @@
 #include "subsystems/Piston.h"
 
 Piston::Piston(std::function<bool()> buttonSupplier, char port)
-    : m_piston(port), m_buttonSupplier(buttonSupplier), m_isExtended(false) {
-    m_piston.set_value(false);
+    :piston(port),buttonSupplier(buttonSupplier),isExtended(false) {
+   piston.set_value(false);
 }
 
 void Piston::extend() {
-    m_piston.set_value(true);
-    m_isExtended = true;
+   piston.set_value(true);
+   isExtended = true;
 }
 
 void Piston::retract() {
-    m_piston.set_value(false);
-    m_isExtended = false;
+   piston.set_value(false);
+   isExtended = false;
 }
 
 void Piston::toggle() {
-    if (m_isExtended) {
+    if (isExtended) {
         retract();
     } else {
         extend();
@@ -24,19 +24,19 @@ void Piston::toggle() {
 }
 
 void Piston::runWithSupplier() {
-    if (!m_buttonSupplier) {
+    if (!buttonSupplier) {
         return;
     }
 
     // Read button state from supplier
-    bool buttonPressed = m_buttonSupplier();
+    bool buttonPressed =buttonSupplier();
 
     // Toggle only on button press (not hold)
-    if (buttonPressed && !m_lastButtonState) {
+    if (buttonPressed && !lastButtonState) {
         toggle();
     }
 
-    m_lastButtonState = buttonPressed;
+   lastButtonState = buttonPressed;
 }
 
 void Piston::periodic() {

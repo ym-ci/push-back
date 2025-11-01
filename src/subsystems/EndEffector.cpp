@@ -2,7 +2,7 @@
 
 // Controller-based end effector: store controller pointer (non-owning) and motor pointer
 EndEffector::EndEffector(pros::Controller* controller, pros::Motor *endEffectorMotor)
-    : m_controller(controller), m_endEffectorMotor(endEffectorMotor) {}
+    :controller(controller),endEffectorMotor(endEffectorMotor) {}
 
 // Define end effector velocities (tweak as needed)
 const int topVel = 200; // L1
@@ -11,32 +11,32 @@ const int intakeVel = 40; // R2
 const int outtakeVel = -200; // R1
 
 void EndEffector::scoreMiddle() {
-    m_endEffectorMotor->move_velocity(midVel);
+   endEffectorMotor->move_velocity(midVel);
 }
 
 void EndEffector::scoreTop() {
-    m_endEffectorMotor->move_velocity(topVel);
+   endEffectorMotor->move_velocity(topVel);
 }
 
 void EndEffector::intake() {
-    m_endEffectorMotor->move_velocity(intakeVel);
+   endEffectorMotor->move_velocity(intakeVel);
 }
 
 void EndEffector::outtake() {
-    m_endEffectorMotor->move_velocity(outtakeVel);
+   endEffectorMotor->move_velocity(outtakeVel);
 }
 
 void EndEffector::runWithController() {
-    if (!m_controller) {
+    if (!controller) {
         stop();
         return;
     }
 
     // Read L1/L2 from the controller
-    bool l1 = m_controller->get_digital(pros::E_CONTROLLER_DIGITAL_L1);
-    bool l2 = m_controller->get_digital(pros::E_CONTROLLER_DIGITAL_L2);
-    bool r1 = m_controller->get_digital(pros::E_CONTROLLER_DIGITAL_R1);
-    bool r2 = m_controller->get_digital(pros::E_CONTROLLER_DIGITAL_R2);
+    bool l1 =controller->get_digital(pros::E_CONTROLLER_DIGITAL_L1);
+    bool l2 =controller->get_digital(pros::E_CONTROLLER_DIGITAL_L2);
+    bool r1 =controller->get_digital(pros::E_CONTROLLER_DIGITAL_R1);
+    bool r2 =controller->get_digital(pros::E_CONTROLLER_DIGITAL_R2);
 
 
 
@@ -59,7 +59,7 @@ void EndEffector::runWithController() {
 }
 
 void EndEffector::stop() {
-    m_endEffectorMotor->move_velocity(0);
+   endEffectorMotor->move_velocity(0);
 }
 
 void EndEffector::periodic() {

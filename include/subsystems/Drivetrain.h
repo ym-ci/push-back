@@ -10,11 +10,11 @@ public:
     void arcadeDrive(int forward, int turn);
     void stop();
     void periodic();
-    lemlib::Chassis* getChassis() { return m_chassis; }
+    lemlib::Chassis* getChassis() { return chassis; }
 
     // Run arcade drive using a controller (reads axes and drives)
     void runArcade(pros::Controller* controller);
 
 private:
-    lemlib::Chassis *m_chassis;
+    lemlib::Chassis *chassis;
 };

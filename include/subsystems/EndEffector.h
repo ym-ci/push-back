@@ -20,6 +20,6 @@ public:
     void outtake();
 
 private:
-    pros::Motor *m_endEffectorMotor;
-    pros::Controller* m_controller{nullptr};
+    pros::Motor *endEffectorMotor;
+    pros::Controller*controller{nullptr};
 };

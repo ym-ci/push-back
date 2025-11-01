@@ -16,13 +16,12 @@ public:
     void extend();
     void retract();
     void toggle();
-    bool isExtended() const { return m_isExtended; }
-    
+    bool isExtended{false};
+
     void periodic();
 
 private:
-    pros::adi::DigitalOut m_piston;
-    std::function<bool()> m_buttonSupplier;
-    bool m_isExtended{false};
-    bool m_lastButtonState{false};
+    pros::adi::DigitalOut piston;
+    std::function<bool()> buttonSupplier;
+    bool lastButtonState{false};
 };

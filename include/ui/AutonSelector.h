@@ -43,7 +43,7 @@ public:
     /**
      * Get the index of the currently selected autonomous
      */
-    int getSelectedIndex() const { return m_selectedIndex; }
+    int getSelectedIndex() const { return selectedIndex; }
 
 private:
     struct AutonOption {
@@ -52,11 +52,11 @@ private:
         lv_obj_t* button;
     };
 
-    std::vector<AutonOption> m_autonOptions;
-    int m_selectedIndex;
-    lv_obj_t* m_screen;
-    lv_obj_t* m_titleLabel;
-    lv_obj_t* m_selectedLabel;
+    std::vector<AutonOption>autonOptions;
+    int selectedIndex;
+    lv_obj_t*screen;
+    lv_obj_t*titleLabel;
+    lv_obj_t*selectedLabel;
 
     static void buttonEventHandler(lv_event_t* e);
     void updateSelectedLabel();

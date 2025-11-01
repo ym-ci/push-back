@@ -1,15 +1,15 @@
 #include "subsystems/Drivetrain.h"
 
-Drivetrain::Drivetrain(lemlib::Chassis *chassis) : m_chassis(chassis) {}
+Drivetrain::Drivetrain(lemlib::Chassis *chassis) :chassis(chassis) {}
 
 void Drivetrain::arcadeDrive(int forward, int turn) {
-    if (m_chassis)
-        m_chassis->arcade(forward, turn);
+    if (chassis)
+       chassis->arcade(forward, turn);
 }
 
 void Drivetrain::stop() {
-    if (m_chassis)
-        m_chassis->arcade(0, 0);
+    if (chassis)
+       chassis->arcade(0, 0);
 }
 
 void Drivetrain::periodic() {

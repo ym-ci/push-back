@@ -21,9 +21,9 @@ public:
     void cancel();
 
 private:
-    std::vector<AutonStep> m_steps;
-    size_t m_index = 0;
-    uint32_t m_stepStart = 0;
-    bool m_started = false;
-    bool m_cancelled = false;
+    std::vector<AutonStep>steps;
+    size_t index = 0;
+    uint32_t stepStart = 0;
+    bool started = false;
+    bool cancelled = false;
 };

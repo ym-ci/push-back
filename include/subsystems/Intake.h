@@ -19,7 +19,7 @@ public:
     void outtake();
 
 private:
-    pros::Motor *m_intakeMotor;
-    pros::Motor *m_middleMotor;
-    pros::Controller* m_controller{nullptr};
+    pros::Motor *intakeMotor;
+    pros::Motor *middleMotor;
+    pros::Controller*controller{nullptr};
 };
