@@ -7,7 +7,7 @@ Intake::Intake(pros::Controller* controller, pros::Motor *intakeMotor, pros::Mot
 
 // Define intake velocities (tweak as needed)
 const int forwardVel = 200; // forward
-const int intakeMidVel = 100; // middle
+const int intakeMidVel = 80; // middle
 const int outtakeVel = -200; // reverse
 
 void Intake::score() {

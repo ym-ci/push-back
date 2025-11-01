@@ -16,6 +16,8 @@ public:
     void periodic();
     void scoreMiddle();
     void scoreTop();
+    void intake();
+    void outtake();
 
 private:
     pros::Motor *m_endEffectorMotor;

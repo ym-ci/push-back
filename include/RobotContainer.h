@@ -5,6 +5,7 @@
 
 class AutonSelector;
 class AutonSequence;
+class Piston;
 
 #include "pros/motor_group.hpp"
 namespace lemlib { class Drivetrain; class Chassis; }
@@ -15,6 +16,7 @@ public:
     ~RobotContainer();
     Drivetrain *getDrivetrain();
     AutonSelector* getAutonSelector();
+    Piston* getPiston() { return m_piston.get(); }
     // Call periodically from opcontrol to run default behaviors
     void runPeriodic();
 
@@ -37,6 +39,9 @@ private:
     // End effector motor and subsystem (L1/L2 control)
     std::unique_ptr<pros::Motor> m_endEffectorMotor;
     std::unique_ptr<class EndEffector> m_endEffector;
+
+    // Piston subsystem (toggle with X button)
+    std::unique_ptr<Piston> m_piston;
 
     // Autonomous selector and sequences
     std::unique_ptr<AutonSelector> m_autonSelector;

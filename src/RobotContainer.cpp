@@ -2,7 +2,7 @@
 #include "ui/AutonSelector.h"
 #include "subsystems/Intake.h"
 #include "subsystems/EndEffector.h"
-#include "pros/misc.hpp"
+#include "subsystems/Piston.h"
 
 // Implementation members moved into RobotContainer header (no Pimpl)
 
@@ -39,8 +39,14 @@ RobotContainer::RobotContainer() {
 
     // Create end effector motor and subsystem.
     // NOTE: Adjust port and reversed flag as needed. Using port 9 as placeholder.
-    m_endEffectorMotor = std::make_unique<pros::Motor>(9);
+    m_endEffectorMotor = std::make_unique<pros::Motor>(21);
     m_endEffector = std::make_unique<EndEffector>(&m_master, m_endEffectorMotor.get());
+
+    // Create piston subsystem on ADI port E (toggle with X button)
+    m_piston = std::make_unique<Piston>(
+        [this]() { return m_master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X ); },
+        'E'
+    );
 
     // No command object — we'll run arcade control directly from the drivetrain
     
@@ -95,6 +101,11 @@ void RobotContainer::runPeriodic() {
     // Run end effector periodic (L1/L2 control)
     if (m_endEffector) {
         m_endEffector->periodic();
+    }
+
+    // Run piston periodic (X button toggle)
+    if (m_piston) {
+        m_piston->periodic();
     }
 
     
