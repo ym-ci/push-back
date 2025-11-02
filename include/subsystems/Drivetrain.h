@@ -14,6 +14,8 @@ public:
 
     // Run arcade drive using a controller (reads axes and drives)
     void runArcade(pros::Controller* controller);
+    // Run tank drive using a controller (reads axes and drives)
+    void runTank(pros::Controller* controller);
 
 private:
     lemlib::Chassis *chassis;

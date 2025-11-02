@@ -16,15 +16,17 @@ public:
     ~RobotContainer();
     Drivetrain *getDrivetrain();
     AutonSelector* getAutonSelector();
-    Piston* getPiston() { return piston.get(); }
+    Piston* getTounge() { return tounge.get(); }
+    Piston* getBlocker() { return blocker.get(); }
     // Call periodically from opcontrol to run default behaviors
     void runPeriodic();
+    pros::Controller master{pros::E_CONTROLLER_MASTER};
+
 
 private:
     Drivetrain *drivetrain;
 
     // Controller (value) used for default controls
-    pros::Controller master{pros::E_CONTROLLER_MASTER};
 
     // Motor groups and lemlib objects owned by the container
     std::unique_ptr<pros::MotorGroup>leftGroup;
@@ -41,7 +43,8 @@ private:
     std::unique_ptr<class EndEffector>endEffector;
 
     // Piston subsystem (toggle with X button)
-    std::unique_ptr<Piston>piston;
+    std::unique_ptr<Piston>tounge;
+    std::unique_ptr<Piston>blocker;
 
     // Autonomous selector and sequences
     std::unique_ptr<AutonSelector>autonSelector;

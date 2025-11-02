@@ -49,15 +49,13 @@ private:
     struct AutonOption {
         std::string name;
         std::shared_ptr<AutonSequence> sequence;
-        lv_obj_t* button;
     };
 
     std::vector<AutonOption>autonOptions;
     int selectedIndex;
     lv_obj_t*screen;
     lv_obj_t*titleLabel;
-    lv_obj_t*selectedLabel;
+    lv_obj_t*dropdown;
 
-    static void buttonEventHandler(lv_event_t* e);
-    void updateSelectedLabel();
+    static void dropdownEventHandler(lv_event_t* e);
 };

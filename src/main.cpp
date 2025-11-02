@@ -1,9 +1,12 @@
 #include "main.h"
 #include "RobotContainer.h"
+#include "pros/misc.h"
 #include "ui/AutonSelector.h"
 #include "pros/misc.hpp"
 
 static RobotContainer *robotContainer = nullptr;
+
+
 
 /**
  * A callback function for LLEMU's center button.
@@ -29,12 +32,12 @@ void on_center_button() {
  */
 void initialize() {
 	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
-
-	pros::lcd::register_btn1_cb(on_center_button);
 
 	// Create RobotContainer which wires subsystems and commands
 	robotContainer = new RobotContainer();
+		if (robotContainer) {
+			robotContainer->getAutonSelector()->initialize();
+		}
 }
 
 /**
@@ -55,9 +58,7 @@ void disabled() {}
  */
 void competition_initialize() {
 	// Initialize the autonomous selector UI
-	if (robotContainer) {
-		robotContainer->getAutonSelector()->initialize();
-	}
+
 }
 
 /**
@@ -73,6 +74,7 @@ void competition_initialize() {
  */
 void autonomous() {
 	// Get the selected autonomous sequence and run it
+
 	if (robotContainer) {
 		auto seq = robotContainer->getAutonSelector()->getSelectedAuton();
 		if (seq) {
@@ -102,11 +104,19 @@ void opcontrol() {
 	// The RobotContainer has created subsystems and the default arcade command.
 	// Run the default periodic behavior directly (no Scheduler).
 	while (true) {
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-						 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-						 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
+		// pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
+		// 				 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
+		// 				 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
 
 		if (robotContainer) robotContainer->runPeriodic();
 		pros::delay(10);
+
+		if (false) {
+			if (robotContainer -> master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
+				autonomous();
+			}
+		}
+
+
 	}
 }

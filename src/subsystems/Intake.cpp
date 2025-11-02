@@ -35,10 +35,10 @@ void Intake::runWithController() {
     }
 
     // Read R1/R2 from the controller
-    bool r1 =controller->get_digital(pros::E_CONTROLLER_DIGITAL_R1);
-    bool r2 =controller->get_digital(pros::E_CONTROLLER_DIGITAL_R2);
-    bool l1 =controller->get_digital(pros::E_CONTROLLER_DIGITAL_L1);
-    bool l2 =controller->get_digital(pros::E_CONTROLLER_DIGITAL_L2);
+    bool r2 =controller->get_digital(pros::E_CONTROLLER_DIGITAL_R1);
+    bool r1 =controller->get_digital(pros::E_CONTROLLER_DIGITAL_R2);
+    bool l2 =controller->get_digital(pros::E_CONTROLLER_DIGITAL_L1);
+    bool l1 =controller->get_digital(pros::E_CONTROLLER_DIGITAL_L2);
 
     if (l1 || l2) {
         score();

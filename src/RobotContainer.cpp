@@ -8,8 +8,8 @@
 
 RobotContainer::RobotContainer() {
     // Create MotorGroup directly from port lists (signed 8-bit values)
-   leftGroup = std::make_unique<pros::MotorGroup>(std::initializer_list<std::int8_t>{-11, -1, -17});
-   rightGroup = std::make_unique<pros::MotorGroup>(std::initializer_list<std::int8_t>{13, 15, 19});
+   rightGroup = std::make_unique<pros::MotorGroup>(std::initializer_list<std::int8_t>{11, 1, 17});
+   leftGroup = std::make_unique<pros::MotorGroup>(std::initializer_list<std::int8_t>{-13, -15, -19});
 
     // Create lemlib drivetrain and chassis
    lemlibDrivetrain = std::make_unique<lemlib::Drivetrain>(leftGroup.get(),rightGroup.get(), 10.0f, lemlib::Omniwheel::NEW_325, 360.0f, 2.0f);
@@ -37,16 +37,22 @@ RobotContainer::RobotContainer() {
    middleMotor = std::make_unique<pros::Motor>(-10);
    intake = std::make_unique<Intake>(&master,intakeMotor.get(),middleMotor.get());
 
-    // Create end effector motor and subsystem.
-    // NOTE: Adjust port and reversed flag as needed. Using port 9 as placeholder.
-   endEffectorMotor = std::make_unique<pros::Motor>(21);
-   endEffector = std::make_unique<EndEffector>(&master,endEffectorMotor.get());
-
     // Create piston subsystem on ADI port E (toggle with X button)
-   piston = std::make_unique<Piston>(
+    tounge = std::make_unique<Piston>(
         [this]() { return master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X ); },
         'E'
     );
+
+    blocker = std::make_unique<Piston>(
+        [this]() { return master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B ); },
+        'D'
+    );
+
+        // Create end effector motor and subsystem.
+    // NOTE: Adjust port and reversed flag as needed. Using port 9 as placeholder.
+   endEffectorMotor = std::make_unique<pros::Motor>(21);
+   endEffector = std::make_unique<EndEffector>(&master, endEffectorMotor.get(), blocker.get());
+
 
     // No command object — we'll run arcade control directly from the drivetrain
     
@@ -70,10 +76,17 @@ RobotContainer::RobotContainer() {
         AutonStep{nullptr, [this]{drivetrain->stop(); }, [](){ return true; }, nullptr, 0}
     });
     
+    // Build simple forward auton: drive forward for 1 second, then stop
+   auto simpleForwardAuton = std::make_shared<AutonSequence>(std::vector<AutonStep>{
+        AutonStep{nullptr, [this]{drivetrain->arcadeDrive(-80,0); }, nullptr, nullptr, 100},
+        AutonStep{nullptr, [this]{drivetrain->stop(); }, [](){ return true; }, nullptr, 0}
+    });
+    
     // Add autonomous routines to the selector
-   autonSelector->addAuton("Red Left",redLeftAuton);
-   autonSelector->addAuton("Blue Right",blueRightAuton);
-   autonSelector->addAuton("Skills",skillsAuton);
+//    autonSelector->addAuton("Red Left",redLeftAuton);
+//    autonSelector->addAuton("Blue Right",blueRightAuton);
+//    autonSelector->addAuton("Skills",skillsAuton);
+   autonSelector->addAuton("Simple Forward",simpleForwardAuton);
 }
 
 RobotContainer::~RobotContainer() {
@@ -87,7 +100,7 @@ AutonSelector* RobotContainer::getAutonSelector() { return autonSelector.get(); 
 void RobotContainer::runPeriodic() {
     // Run default behaviors: execute arcade drive and subsystem periodic
     if (drivetrain) {
-       drivetrain->runArcade(&master);
+       drivetrain->runTank(&master);
     }
     if (drivetrain) {
        drivetrain->periodic();
@@ -104,9 +117,11 @@ void RobotContainer::runPeriodic() {
     }
 
     // Run piston periodic (X button toggle)
-    if (piston) {
-       piston->periodic();
+    if (tounge) {
+       tounge->periodic();
     }
 
-    
+    if (blocker) {
+       blocker->periodic();
+    }    
 }

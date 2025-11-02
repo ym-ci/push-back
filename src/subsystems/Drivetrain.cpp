@@ -23,3 +23,12 @@ void Drivetrain::runArcade(pros::Controller* controller) {
     // Use same sign inversion as previous ArcadeDriveCommand
     arcadeDrive(forward, turn);
 }
+
+void Drivetrain::runTank(pros::Controller* controller) {
+    if (!controller) return;
+    int left = controller->get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+    int right = controller->get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
+    if (chassis)
+       chassis->tank(left, right);
+    
+}
