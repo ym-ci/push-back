@@ -1,5 +1,6 @@
 #include "main.h"
 #include "RobotContainer.h"
+#include "pros/llemu.hpp"
 #include "pros/misc.h"
 #include "ui/AutonSelector.h"
 #include "pros/misc.hpp"
@@ -73,18 +74,26 @@ void competition_initialize() {
  * from where it left off.
  */
 void autonomous() {
-	// Get the selected autonomous sequence and run it
+    if (robotContainer) {
+        auto routine = robotContainer->getAutonSelector()->getSelectedAuton();
+		pros::lcd::initialize();
+        if (routine) {
+            // Create logging task
+            pros::Task screen_task([&]() {
+                while (true) {
+                    pros::lcd::print(0, "Auton running: %s", 
+                        robotContainer->getAutonSelector()->getSelectedAutonName().c_str());
+                    pros::delay(20);
+                }
+            });
 
-	if (robotContainer) {
-		auto seq = robotContainer->getAutonSelector()->getSelectedAuton();
-		if (seq) {
-			seq->start(pros::millis());
-			while (!seq->isFinished()) {
-				seq->update(pros::millis());
-				pros::delay(10);
-			}
-		}
-	}
+            // Run the selected autonomous routine
+            routine();
+
+            // Kill the screen task when autonomous is complete
+            screen_task.remove();
+        }
+    }
 }
 
 /**
@@ -111,7 +120,7 @@ void opcontrol() {
 		if (robotContainer) robotContainer->runPeriodic();
 		pros::delay(10);
 
-		if (false) {
+		if (true) {
 			if (robotContainer -> master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
 				autonomous();
 			}

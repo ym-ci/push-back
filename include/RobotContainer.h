@@ -21,6 +21,7 @@ public:
     // Call periodically from opcontrol to run default behaviors
     void runPeriodic();
     pros::Controller master{pros::E_CONTROLLER_MASTER};
+    std::unique_ptr<lemlib::Chassis>chassis;
 
 
 private:
@@ -32,7 +33,7 @@ private:
     std::unique_ptr<pros::MotorGroup>leftGroup;
     std::unique_ptr<pros::MotorGroup>rightGroup;
     std::unique_ptr<lemlib::Drivetrain>lemlibDrivetrain;
-    std::unique_ptr<lemlib::Chassis>chassis;
+    
 
     // Intake subsystem: motors owned by RobotContainer and Intake instance
     std::unique_ptr<pros::Motor>intakeMotor;

@@ -1,6 +1,6 @@
 #pragma once
 #include "liblvgl/lvgl.h"
-#include "auton/AutonSequence.h"
+#include <functional>
 #include <memory>
 #include <vector>
 #include <string>
@@ -13,6 +13,8 @@
  */
 class AutonSelector {
 public:
+    using AutonFunction = std::function<void()>;
+
     AutonSelector();
     ~AutonSelector();
 
@@ -25,15 +27,15 @@ public:
     /**
      * Add an autonomous routine to the selector
      * @param name Display name of the autonomous routine
-     * @param command The command to run for this autonomous
+     * @param routine Function pointer to the autonomous routine
      */
-    void addAuton(const std::string& name, std::shared_ptr<AutonSequence> sequence);
+    void addAuton(const std::string& name, AutonFunction routine);
 
     /**
-     * Get the currently selected autonomous command
-     * @return Shared pointer to the selected command, or nullptr if none selected
+     * Get the currently selected autonomous routine
+     * @return Function pointer to the selected routine, or nullptr if none selected
      */
-    std::shared_ptr<AutonSequence> getSelectedAuton();
+    AutonFunction getSelectedAuton();
 
     /**
      * Get the name of the currently selected autonomous
@@ -48,7 +50,7 @@ public:
 private:
     struct AutonOption {
         std::string name;
-        std::shared_ptr<AutonSequence> sequence;
+        AutonFunction routine;
     };
 
     std::vector<AutonOption>autonOptions;

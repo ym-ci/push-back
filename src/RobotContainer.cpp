@@ -1,8 +1,11 @@
 #include "RobotContainer.h"
+#include "lemlib/chassis/trackingWheel.hpp"
 #include "ui/AutonSelector.h"
 #include "subsystems/Intake.h"
 #include "subsystems/EndEffector.h"
 #include "subsystems/Piston.h"
+#include "auton/auton.h"
+#include <cstddef>
 
 // Implementation members moved into RobotContainer header (no Pimpl)
 
@@ -10,9 +13,11 @@ RobotContainer::RobotContainer() {
     // Create MotorGroup directly from port lists (signed 8-bit values)
    rightGroup = std::make_unique<pros::MotorGroup>(std::initializer_list<std::int8_t>{11, 1, 17});
    leftGroup = std::make_unique<pros::MotorGroup>(std::initializer_list<std::int8_t>{-13, -15, -19});
+   rightGroup->set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+   leftGroup->set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 
     // Create lemlib drivetrain and chassis
-   lemlibDrivetrain = std::make_unique<lemlib::Drivetrain>(leftGroup.get(),rightGroup.get(), 10.0f, lemlib::Omniwheel::NEW_325, 360.0f, 2.0f);
+   lemlibDrivetrain = std::make_unique<lemlib::Drivetrain>(leftGroup.get(),rightGroup.get(), 10.0f, lemlib::Omniwheel::NEW_275, 450, 2.0f);
     
     // pros::Rotation constructor takes a single port parameter; use negative port for reversed sensors
     static pros::Rotation horizontalRotation(2); // adjust port (positive) or use -2 for reversed
@@ -25,7 +30,9 @@ RobotContainer::RobotContainer() {
     // Here we set vertical tracking wheel pointers to nullptr (no vertical shafts),
     // keep the horizontal pod, and provide the IMU.
     lemlib::OdomSensors sensors(nullptr, nullptr, &horizontalTrackingWheel, nullptr, &imu);
-   chassis = std::make_unique<lemlib::Chassis>(*lemlibDrivetrain, lemlib::ControllerSettings(1,0,0,0,0,0,0,0,0), lemlib::ControllerSettings(1,0,0,0,0,0,0,0,0), sensors);
+   chassis = std::make_unique<lemlib::Chassis>(*lemlibDrivetrain, 
+    lemlib::ControllerSettings(10,0,0,0,0,0,0,0,0), 
+    lemlib::ControllerSettings(1,0,0,0,0,0,0,0,0), sensors);
 
     // Create our Drivetrain wrapper passing the chassis pointer
    drivetrain = new Drivetrain(chassis.get());
@@ -56,37 +63,22 @@ RobotContainer::RobotContainer() {
 
     // No command object — we'll run arcade control directly from the drivetrain
     
-    // Create autonomous selector and autonomous commands
-   autonSelector = std::make_unique<AutonSelector>();
-    // Build autonomous sequences directly using AutonSequence
-   redLeftAuton = std::make_shared<AutonSequence>(std::vector<AutonStep>{
-        AutonStep{nullptr, [this]{drivetrain->arcadeDrive(80,0); }, nullptr, nullptr, 2000},
-        AutonStep{nullptr, [this]{drivetrain->arcadeDrive(0,-60); }, nullptr, nullptr, 1000},
-        AutonStep{nullptr, [this]{drivetrain->stop(); }, [](){ return true; }, nullptr, 0}
-    });
-   blueRightAuton = std::make_shared<AutonSequence>(std::vector<AutonStep>{
-        AutonStep{nullptr, [this]{drivetrain->arcadeDrive(80,0); }, nullptr, nullptr, 2000},
-        AutonStep{nullptr, [this]{drivetrain->arcadeDrive(0,60); }, nullptr, nullptr, 1000},
-        AutonStep{nullptr, [this]{drivetrain->stop(); }, [](){ return true; }, nullptr, 0}
-    });
-    // Build skills auton sequence: forward 3s, back 3s, stop
-   skillsAuton = std::make_shared<AutonSequence>(std::vector<AutonStep>{
-        AutonStep{nullptr, [this]{drivetrain->arcadeDrive(80,0); }, nullptr, nullptr, 3000},
-        AutonStep{nullptr, [this]{drivetrain->arcadeDrive(-80,0); }, nullptr, nullptr, 3000},
-        AutonStep{nullptr, [this]{drivetrain->stop(); }, [](){ return true; }, nullptr, 0}
-    });
+    // Create autonomous selector with simple function pointers
+    autonSelector = std::make_unique<AutonSelector>();
     
-    // Build simple forward auton: drive forward for 1 second, then stop
-   auto simpleForwardAuton = std::make_shared<AutonSequence>(std::vector<AutonStep>{
-        AutonStep{nullptr, [this]{drivetrain->arcadeDrive(-80,0); }, nullptr, nullptr, 100},
-        AutonStep{nullptr, [this]{drivetrain->stop(); }, [](){ return true; }, nullptr, 0}
-    });
+    // Initialize the autonomous functions with this container
+    auton::init(this);
+    
+    // Add autonomous routines to the selector using function pointers
+    autonSelector->addAuton("Simple Forward", auton::simpleForward);
+    autonSelector->addAuton("Red Left", auton::redLeft);
+    autonSelector->addAuton("Blue Right", auton::blueRight);
+    autonSelector->addAuton("Skills", auton::skills);
     
     // Add autonomous routines to the selector
 //    autonSelector->addAuton("Red Left",redLeftAuton);
 //    autonSelector->addAuton("Blue Right",blueRightAuton);
 //    autonSelector->addAuton("Skills",skillsAuton);
-   autonSelector->addAuton("Simple Forward",simpleForwardAuton);
 }
 
 RobotContainer::~RobotContainer() {

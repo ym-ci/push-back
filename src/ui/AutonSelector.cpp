@@ -45,16 +45,16 @@ void AutonSelector::initialize() {
     }
 }
 
-void AutonSelector::addAuton(const std::string& name, std::shared_ptr<AutonSequence> sequence) {
+void AutonSelector::addAuton(const std::string& name, AutonFunction routine) {
     AutonOption option;
     option.name = name;
-    option.sequence = sequence;
+    option.routine = routine;
     autonOptions.push_back(option);
 }
 
-std::shared_ptr<AutonSequence> AutonSelector::getSelectedAuton() {
-    if (selectedIndex >= 0 &&selectedIndex < static_cast<int>(autonOptions.size())) {
-        return autonOptions[selectedIndex].sequence;
+AutonSelector::AutonFunction AutonSelector::getSelectedAuton() {
+    if (selectedIndex >= 0 && selectedIndex < static_cast<int>(autonOptions.size())) {
+        return autonOptions[selectedIndex].routine;
     }
     return nullptr;
 }
