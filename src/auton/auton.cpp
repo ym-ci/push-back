@@ -37,8 +37,12 @@ namespace auton {
 
     // Autonomous routines
     void simpleForward() {
-        robot->chassis->setPose(0, 0, 0);
-        robot->chassis->moveToPose(0, 12, 0, 1000 );
+        // Use the drivetrain's lemlib chassis via RobotContainer accessor
+        auto chassis = robot->getChassis();
+        if (chassis != nullptr) {
+            chassis->setPose(0, 0, 0);
+            chassis->moveToPose(0, 12, 0, 1000);
+        }
     }
 
     void redLeft() {

@@ -3,6 +3,7 @@
 #include "pros/llemu.hpp"
 #include "pros/misc.h"
 #include "pros/misc.hpp"
+#include "subsystems/Drivetrain.h"
 #include "ui/AutonSelector.h"
 
 
@@ -108,12 +109,20 @@ void opcontrol() {
     pros::lcd::print(
         0, "Auton running: %s",
         robotContainer->getAutonSelector()->getSelectedAutonName().c_str());
-    // Log robot location
-    pros::lcd::print(i++, "AUTON RUNNING");
-      pros::lcd::print(i++, "X: %f", RobotContainer::chassis.getPose().x);
-      pros::lcd::print(i++, "Y: %f", RobotContainer::chassis.getPose().y);
-      pros::lcd::print(i++, "Theta: %f", RobotContainer::chassis.getPose().theta);
-      pros::delay(20);
+
+    // Log robot location using the drivetrain's chassis pose (if available)
+    static int i = 1; // start from line 1; line 0 used above
+    if (robotContainer != nullptr) {
+        auto chassis = Drivetrain::getInstance().getChassis();
+        if (chassis != nullptr) {
+            auto pose = chassis->getPose();
+            pros::lcd::print(i++, "AUTON RUNNING");
+            pros::lcd::print(i++, "X: %f", pose.x);
+            pros::lcd::print(i++, "Y: %f", pose.y);
+            pros::lcd::print(i++, "Theta: %f", pose.theta);
+        }
+    }
+    if (i > 7) i = 1; // keep lines bounded
 
     if (robotContainer)
       robotContainer->runPeriodic();
