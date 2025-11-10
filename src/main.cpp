@@ -2,12 +2,11 @@
 #include "RobotContainer.h"
 #include "pros/llemu.hpp"
 #include "pros/misc.h"
-#include "ui/AutonSelector.h"
 #include "pros/misc.hpp"
+#include "ui/AutonSelector.h"
+
 
 static RobotContainer *robotContainer = nullptr;
-
-
 
 /**
  * A callback function for LLEMU's center button.
@@ -16,13 +15,13 @@ static RobotContainer *robotContainer = nullptr;
  * "I was pressed!" and nothing.
  */
 void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
+  static bool pressed = false;
+  pressed = !pressed;
+  if (pressed) {
+    pros::lcd::set_text(2, "I was pressed!");
+  } else {
+    pros::lcd::clear_line(2);
+  }
 }
 
 /**
@@ -32,13 +31,13 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	pros::lcd::initialize();
+  pros::lcd::initialize();
 
-	// Create RobotContainer which wires subsystems and commands
-	robotContainer = new RobotContainer();
-		if (robotContainer) {
-			robotContainer->getAutonSelector()->initialize();
-		}
+  // Create RobotContainer which wires subsystems and commands
+  robotContainer = new RobotContainer();
+  if (robotContainer) {
+    // robotContainer->getAutonSelector()->initialize();
+  }
 }
 
 /**
@@ -58,8 +57,7 @@ void disabled() {}
  * starts.
  */
 void competition_initialize() {
-	// Initialize the autonomous selector UI
-
+  // Initialize the autonomous selector UI
 }
 
 /**
@@ -74,26 +72,15 @@ void competition_initialize() {
  * from where it left off.
  */
 void autonomous() {
-    if (robotContainer) {
-        auto routine = robotContainer->getAutonSelector()->getSelectedAuton();
-		pros::lcd::initialize();
-        if (routine) {
-            // Create logging task
-            pros::Task screen_task([&]() {
-                while (true) {
-                    pros::lcd::print(0, "Auton running: %s", 
-                        robotContainer->getAutonSelector()->getSelectedAutonName().c_str());
-                    pros::delay(20);
-                }
-            });
+  if (robotContainer) {
+    auto routine = robotContainer->getAutonSelector()->getSelectedAuton();
 
-            // Run the selected autonomous routine
-            routine();
+    if (routine) {
 
-            // Kill the screen task when autonomous is complete
-            screen_task.remove();
-        }
+      // Run the selected autonomous routine
+      routine();
     }
+  }
 }
 
 /**
@@ -110,22 +97,33 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	// The RobotContainer has created subsystems and the default arcade command.
-	// Run the default periodic behavior directly (no Scheduler).
-	while (true) {
-		// pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		// 				 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		// 				 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
+  // The RobotContainer has created subsystems and the default arcade command.
+  // Run the default periodic behavior directly (no Scheduler).
+  while (true) {
+    // pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() &
+    // LCD_BTN_LEFT) >> 2, 				 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
+    // 				 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >>
+    // 0);
 
-		if (robotContainer) robotContainer->runPeriodic();
-		pros::delay(10);
+    pros::lcd::print(
+        0, "Auton running: %s",
+        robotContainer->getAutonSelector()->getSelectedAutonName().c_str());
+    // Log robot location
+    pros::lcd::print(i++, "AUTON RUNNING");
+      pros::lcd::print(i++, "X: %f", RobotContainer::chassis.getPose().x);
+      pros::lcd::print(i++, "Y: %f", RobotContainer::chassis.getPose().y);
+      pros::lcd::print(i++, "Theta: %f", RobotContainer::chassis.getPose().theta);
+      pros::delay(20);
 
-		if (true) {
-			if (robotContainer -> master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
-				autonomous();
-			}
-		}
+    if (robotContainer)
+      robotContainer->runPeriodic();
+    pros::delay(10);
 
-
-	}
+    if (true) {
+      if (robotContainer->master.get_digital_new_press(
+              pros::E_CONTROLLER_DIGITAL_DOWN)) {
+        autonomous();
+      }
+    }
+  }
 }

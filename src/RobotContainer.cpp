@@ -10,110 +10,60 @@
 // Implementation members moved into RobotContainer header (no Pimpl)
 
 RobotContainer::RobotContainer() {
-    // Create MotorGroup directly from port lists (signed 8-bit values)
-   rightGroup = std::make_unique<pros::MotorGroup>(std::initializer_list<std::int8_t>{11, 1, 17});
-   leftGroup = std::make_unique<pros::MotorGroup>(std::initializer_list<std::int8_t>{-13, -15, -19});
-   rightGroup->set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-   leftGroup->set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+    // Initialize singleton subsystems and their owned hardware
 
-    // Create lemlib drivetrain and chassis
-   lemlibDrivetrain = std::make_unique<lemlib::Drivetrain>(leftGroup.get(),rightGroup.get(), 10.0f, lemlib::Omniwheel::NEW_275, 450, 2.0f);
-    
-    // pros::Rotation constructor takes a single port parameter; use negative port for reversed sensors
-    static pros::Rotation horizontalRotation(2); // adjust port (positive) or use -2 for reversed
-    static lemlib::TrackingWheel horizontalTrackingWheel(&horizontalRotation, lemlib::Omniwheel::NEW_2, -2 /*distance: behind center*/);
+    // Drivetrain (owns drive motors, lemlib drivetrain, chassis)
+    Drivetrain::initialize();
 
-    // IMU
-    static pros::Imu imu(1); // adjust port as needed
-
-    // Use nullptr for verticals if you prefer to rely on IMU + horizontal pod only.
-    // Here we set vertical tracking wheel pointers to nullptr (no vertical shafts),
-    // keep the horizontal pod, and provide the IMU.
-    lemlib::OdomSensors sensors(nullptr, nullptr, &horizontalTrackingWheel, nullptr, &imu);
-   chassis = std::make_unique<lemlib::Chassis>(*lemlibDrivetrain, 
-    lemlib::ControllerSettings(10,0,0,0,0,0,0,0,0), 
-    lemlib::ControllerSettings(1,0,0,0,0,0,0,0,0), sensors);
-
-    // Create our Drivetrain wrapper passing the chassis pointer
-   drivetrain = new Drivetrain(chassis.get());
-
-    // Create intake motors and Intake subsystem.
-    // NOTE: Adjust ports and reversed flags as needed for your robot.
-    // Using ports 7 and 8 here as placeholders.
-   intakeMotor = std::make_unique<pros::Motor>(4);
-   middleMotor = std::make_unique<pros::Motor>(-10);
-   intake = std::make_unique<Intake>(&master,intakeMotor.get(),middleMotor.get());
-
-    // Create piston subsystem on ADI port E (toggle with X button)
+    // Pistons remain here (they depend on controller button suppliers)
     tounge = std::make_unique<Piston>(
-        [this]() { return master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X ); },
+        [this]() { return master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X); },
         'E'
     );
-
     blocker = std::make_unique<Piston>(
-        [this]() { return master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B ); },
+        [this]() { return master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B); },
         'D'
     );
 
-        // Create end effector motor and subsystem.
-    // NOTE: Adjust port and reversed flag as needed. Using port 9 as placeholder.
-   endEffectorMotor = std::make_unique<pros::Motor>(21);
-   endEffector = std::make_unique<EndEffector>(&master, endEffectorMotor.get(), blocker.get());
+    // Intake singleton (owns intake + middle motors, reads controller)
+    Intake::initialize(&master);
 
+    // EndEffector singleton (owns its motor, uses blocker piston + controller)
+    EndEffector::initialize(&master, blocker.get());
 
-    // No command object — we'll run arcade control directly from the drivetrain
-    
-    // Create autonomous selector with simple function pointers
+    // Autonomous selector with function pointers
     autonSelector = std::make_unique<AutonSelector>();
-    
-    // Initialize the autonomous functions with this container
+
+    // Initialize autonomous with this container
     auton::init(this);
-    
-    // Add autonomous routines to the selector using function pointers
+
+    // Add autonomous routines to the selector
     autonSelector->addAuton("Simple Forward", auton::simpleForward);
     autonSelector->addAuton("Red Left", auton::redLeft);
     autonSelector->addAuton("Blue Right", auton::blueRight);
     autonSelector->addAuton("Skills", auton::skills);
-    
-    // Add autonomous routines to the selector
-//    autonSelector->addAuton("Red Left",redLeftAuton);
-//    autonSelector->addAuton("Blue Right",blueRightAuton);
-//    autonSelector->addAuton("Skills",skillsAuton);
 }
 
 RobotContainer::~RobotContainer() {
-    delete drivetrain;
+    // Singleton subsystems own their resources; RobotContainer only owns pistons and autonSelector.
 }
 
-Drivetrain *RobotContainer::getDrivetrain() { return drivetrain; }
-
-AutonSelector* RobotContainer::getAutonSelector() { return autonSelector.get(); }
-
 void RobotContainer::runPeriodic() {
-    // Run default behaviors: execute arcade drive and subsystem periodic
-    if (drivetrain) {
-       drivetrain->runTank(&master);
-    }
-    if (drivetrain) {
-       drivetrain->periodic();
-    }
+    // Drivetrain tank drive and periodic (singleton)
+    Drivetrain::getInstance().runTank(&master);
+    Drivetrain::getInstance().periodic();
 
-    // Run intake periodic (reads controller buttons)
-    if (intake) {
-       intake->periodic();
-    }
+    // Intake periodic (singleton)
+    Intake::getInstance().periodic();
 
-    // Run end effector periodic (L1/L2 control)
-    if (endEffector) {
-       endEffector->periodic();
-    }
+    // End effector periodic (singleton)
+    EndEffector::getInstance().periodic();
 
-    // Run piston periodic (X button toggle)
+    // Piston periodic (X/B button toggle; owned by container)
     if (tounge) {
-       tounge->periodic();
+        tounge->periodic();
     }
-
     if (blocker) {
-       blocker->periodic();
-    }    
+        blocker->periodic();
+    }
 }

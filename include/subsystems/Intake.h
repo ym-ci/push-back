@@ -5,12 +5,19 @@
 
 class Intake : public command::Subsystem {
 public:
-    // Construct from an existing lemlib::Chassis instance (ownership retained elsewhere)
-    // Construct with controller pointer and motor pointers. Controller pointer
-    // is stored (no ownership) so the intake can read buttons each periodic.
-    explicit Intake(pros::Controller* controller, pros::Motor *intakeMotor, pros::Motor *middleMotor);
-    // Read stored controller buttons and drive intake motors. R1 -> intake in, R2 -> out.
-    // If both pressed or controller is null, motors are stopped.
+    // Singleton access
+    static Intake& getInstance();
+
+    // Configure singleton (call once early)
+    static void initialize(pros::Controller* controller);
+
+    // Delete copy/move
+    Intake(const Intake&) = delete;
+    Intake& operator=(const Intake&) = delete;
+    Intake(Intake&&) = delete;
+    Intake& operator=(Intake&&) = delete;
+
+    // Control methods
     void runWithController();
     void stop();
     void periodic();
@@ -19,7 +26,14 @@ public:
     void outtake();
 
 private:
-    pros::Motor *intakeMotor;
-    pros::Motor *middleMotor;
-    pros::Controller*controller{nullptr};
+    Intake() = default;
+
+    static Intake* instance;
+
+    // Motors owned by subsystem
+    std::unique_ptr<pros::Motor> intakeMotor;
+    std::unique_ptr<pros::Motor> middleMotor;
+
+    // Non-owning controller pointer
+    pros::Controller* controller{nullptr};
 };

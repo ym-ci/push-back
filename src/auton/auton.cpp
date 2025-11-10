@@ -37,8 +37,8 @@ namespace auton {
 
     // Autonomous routines
     void simpleForward() {
-        driveForward(80, 1000);  // Drive forward at 80% speed for 1 second
-        stop();
+        robot->chassis->setPose(0, 0, 0);
+        robot->chassis->moveToPose(0, 12, 0, 1000 );
     }
 
     void redLeft() {

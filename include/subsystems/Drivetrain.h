@@ -5,8 +5,19 @@
 
 class Drivetrain : public command::Subsystem {
 public:
-    // Construct from an existing lemlib::Chassis instance (ownership retained elsewhere)
-    explicit Drivetrain(lemlib::Chassis *chassis);
+    // Access singleton instance
+    static Drivetrain& getInstance();
+
+    // Delete copy/move to enforce singleton
+    Drivetrain(const Drivetrain&) = delete;
+    Drivetrain& operator=(const Drivetrain&) = delete;
+    Drivetrain(Drivetrain&&) = delete;
+    Drivetrain& operator=(Drivetrain&&) = delete;
+
+    // Initialization (call once early in program)
+    // Creates internal lemlib drivetrain, motors, and chassis
+    static void initialize();
+
     void arcadeDrive(int forward, int turn);
     void stop();
     void periodic();
@@ -18,5 +29,15 @@ public:
     void runTank(pros::Controller* controller);
 
 private:
-    lemlib::Chassis *chassis;
+    Drivetrain() = default;
+
+    static Drivetrain* instance;
+
+    std::unique_ptr<pros::MotorGroup> leftGroup;
+    std::unique_ptr<pros::MotorGroup> rightGroup;
+    std::unique_ptr<lemlib::Drivetrain> lemlibDrivetrain;
+    std::unique_ptr<lemlib::Chassis> chassisOwned;
+
+    // Raw pointer used by existing API; backed by chassisOwned
+    lemlib::Chassis* chassis{nullptr};
 };

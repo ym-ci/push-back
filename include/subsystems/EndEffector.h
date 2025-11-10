@@ -6,12 +6,19 @@
 
 class EndEffector : public command::Subsystem {
 public:
-    // Construct from an existing lemlib::Chassis instance (ownership retained elsewhere)
-    // Construct with controller pointer and motor pointers. Controller pointer
-    // is stored (no ownership) so the intake can read buttons each periodic.
-    explicit EndEffector(pros::Controller* controller, pros::Motor *endEffectorMotor, Piston* blocker);
-    // Read stored controller buttons and drive intake motors. R1 -> intake in, R2 -> out.
-    // If both pressed or controller is null, motors are stopped.
+    // Singleton access
+    static EndEffector& getInstance();
+
+    // Configure singleton (call once early)
+    static void initialize(pros::Controller* controller, Piston* blocker);
+
+    // Delete copy/move
+    EndEffector(const EndEffector&) = delete;
+    EndEffector& operator=(const EndEffector&) = delete;
+    EndEffector(EndEffector&&) = delete;
+    EndEffector& operator=(EndEffector&&) = delete;
+
+    // Behavior
     void runWithController();
     void stop();
     void periodic();
@@ -21,7 +28,14 @@ public:
     void outtake();
 
 private:
-    pros::Motor *endEffectorMotor;
-    pros::Controller*controller{nullptr};
+    EndEffector() = default;
+
+    static EndEffector* instance;
+
+    // Owned motor
+    std::unique_ptr<pros::Motor> endEffectorMotor;
+
+    // Non-owning controller and blocker piston
+    pros::Controller* controller{nullptr};
     Piston* blocker{nullptr};
 };
