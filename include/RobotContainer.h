@@ -27,9 +27,6 @@ public:
     // Public master controller (consumed by subsystems during initialization)
     pros::Controller master{pros::E_CONTROLLER_MASTER};
 
-    // Access lemlib chassis used by drivetrain singleton (for auton)
-    lemlib::Chassis* getChassis() { return Drivetrain::getInstance().getChassis(); }
-
 private:
     // Pistons remain owned by RobotContainer (they depend on its controller callbacks)
     std::unique_ptr<Piston> tounge;

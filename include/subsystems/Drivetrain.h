@@ -21,23 +21,22 @@ public:
     void arcadeDrive(int forward, int turn);
     void stop();
     void periodic();
-    lemlib::Chassis* getChassis() { return chassis; }
-
     // Run arcade drive using a controller (reads axes and drives)
     void runArcade(pros::Controller* controller);
-    // Run tank drive using a controller (reads axes and drives)
-    void runTank(pros::Controller* controller);
-
-private:
-    Drivetrain() = default;
-
-    static Drivetrain* instance;
-
-    std::unique_ptr<pros::MotorGroup> leftGroup;
-    std::unique_ptr<pros::MotorGroup> rightGroup;
-    std::unique_ptr<lemlib::Drivetrain> lemlibDrivetrain;
-    std::unique_ptr<lemlib::Chassis> chassisOwned;
-
-    // Raw pointer used by existing API; backed by chassisOwned
-    lemlib::Chassis* chassis{nullptr};
+     // Run tank drive using a controller (reads axes and drives)
+     void runTank(pros::Controller* controller);
+ 
+     lemlib::Chassis chassis;
+ 
+ private:
+     // Private default constructor so we can allocate in initialize()
+     Drivetrain();
+ 
+     static Drivetrain* instance;
+ 
+     std::unique_ptr<pros::MotorGroup> leftGroup;
+     std::unique_ptr<pros::MotorGroup> rightGroup;
+     // Stored chassis object; lifetime managed by Drivetrain singleton
+     std::unique_ptr<lemlib::Drivetrain> lemlibDrivetrain;
 };
+

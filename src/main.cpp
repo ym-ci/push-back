@@ -6,8 +6,9 @@
 #include "subsystems/Drivetrain.h"
 #include "ui/AutonSelector.h"
 
-
 static RobotContainer *robotContainer = nullptr;
+static auto& chassis = Drivetrain::getInstance().chassis;
+
 
 /**
  * A callback function for LLEMU's center button.
@@ -33,11 +34,14 @@ void on_center_button() {
  */
 void initialize() {
   pros::lcd::initialize();
+  
+  chassis.calibrate();
+  chassis.setPose(0, 0, 0);
 
   // Create RobotContainer which wires subsystems and commands
   robotContainer = new RobotContainer();
   if (robotContainer) {
-    // robotContainer->getAutonSelector()->initialize();
+    robotContainer->getAutonSelector()->initialize();
   }
 }
 
@@ -81,6 +85,19 @@ void autonomous() {
       // Run the selected autonomous routine
       routine();
     }
+
+    pros::Task screen_task([&]() {
+      while (true) {
+        // print robot location to the brain screen
+        // array of lines
+        int i = 0;
+        pros::lcd::print(i++, "AUTON RUNNING");
+        pros::lcd::print(i++, "X: %f", chassis.getPose().x);
+        pros::lcd::print(i++, "Y: %f", chassis.getPose().y);
+        pros::lcd::print(i++, "Theta: %f", chassis.getPose().theta);
+        pros::delay(20);
+      }
+    });
   }
 }
 
@@ -102,27 +119,14 @@ void opcontrol() {
   // Run the default periodic behavior directly (no Scheduler).
   while (true) {
     // pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() &
-    // LCD_BTN_LEFT) >> 2, 				 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
+    // LCD_BTN_LEFT) >> 2,
+    // (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
     // 				 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >>
     // 0);
 
     pros::lcd::print(
         0, "Auton running: %s",
         robotContainer->getAutonSelector()->getSelectedAutonName().c_str());
-
-    // Log robot location using the drivetrain's chassis pose (if available)
-    static int i = 1; // start from line 1; line 0 used above
-    if (robotContainer != nullptr) {
-        auto chassis = Drivetrain::getInstance().getChassis();
-        if (chassis != nullptr) {
-            auto pose = chassis->getPose();
-            pros::lcd::print(i++, "AUTON RUNNING");
-            pros::lcd::print(i++, "X: %f", pose.x);
-            pros::lcd::print(i++, "Y: %f", pose.y);
-            pros::lcd::print(i++, "Theta: %f", pose.theta);
-        }
-    }
-    if (i > 7) i = 1; // keep lines bounded
 
     if (robotContainer)
       robotContainer->runPeriodic();

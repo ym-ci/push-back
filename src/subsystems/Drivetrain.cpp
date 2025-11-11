@@ -1,5 +1,6 @@
 #include "subsystems/Drivetrain.h"
 #include "lemlib/chassis/trackingWheel.hpp"
+#include "pros/llemu.hpp"
 #include "pros/motor_group.hpp"
 #include "pros/imu.hpp"
 
@@ -10,6 +11,7 @@ Drivetrain* Drivetrain::instance = nullptr;
 void Drivetrain::initialize() {
     if (instance != nullptr) return;
 
+    // Construct singleton instance (private ctor)
     instance = new Drivetrain();
 
     // Motor groups (ports/signs copied from RobotContainer)
@@ -21,7 +23,7 @@ void Drivetrain::initialize() {
     instance->rightGroup->set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
     instance->leftGroup->set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 
-    // Lemlib drivetrain
+    // Lemlib drivetrain configuration object
     instance->lemlibDrivetrain = std::make_unique<lemlib::Drivetrain>(
         instance->leftGroup.get(),
         instance->rightGroup.get(),
@@ -48,14 +50,13 @@ void Drivetrain::initialize() {
         &imu
     );
 
-    instance->chassisOwned = std::make_unique<lemlib::Chassis>(
+    // Construct chassis in-place using placement-new (no copy/move/assign)
+    new (&instance->chassis) lemlib::Chassis(
         *instance->lemlibDrivetrain,
-        lemlib::ControllerSettings(10, 0, 0, 0, 0, 0, 0, 0, 0),
-        lemlib::ControllerSettings(1, 0, 0, 0, 0, 0, 0, 0, 0),
+        lemlib::ControllerSettings(10, 0, 0, 3, 1, 100, 3, 500, 5),
+        lemlib::ControllerSettings(2, 0, 10, 3, 1, 100, 3, 500, 5),
         sensors
     );
-
-    instance->chassis = instance->chassisOwned.get();
 }
 
 // Accessor for singleton instance (assumes initialize() called)
@@ -65,13 +66,11 @@ Drivetrain& Drivetrain::getInstance() {
 }
 
 void Drivetrain::arcadeDrive(int forward, int turn) {
-    if (chassis)
-        chassis->arcade(forward, turn);
+    chassis.arcade(forward, turn);
 }
 
 void Drivetrain::stop() {
-    if (chassis)
-        chassis->arcade(0, 0);
+    chassis.arcade(0, 0);
 }
 
 void Drivetrain::periodic() {
@@ -87,8 +86,12 @@ void Drivetrain::runArcade(pros::Controller* controller) {
 
 void Drivetrain::runTank(pros::Controller* controller) {
     if (!controller) return;
+
+    // Print the left and right values to the LCD for debugging
+
     int left = controller->get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
     int right = controller->get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
-    if (chassis)
-        chassis->tank(left, right);
+    // pros::lcd::print(3, "Left: %d", left);
+    // pros::lcd::print(4, "Right: %d", right);
+    chassis.tank(left, right);
 }
