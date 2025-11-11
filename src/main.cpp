@@ -1,12 +1,11 @@
 #include "main.h"
-#include "RobotContainer.h"
+#include "Globals.h"
 #include "pros/llemu.hpp"
 #include "pros/misc.h"
 #include "pros/misc.hpp"
 #include "subsystems/Drivetrain.h"
 #include "ui/AutonSelector.h"
 
-static RobotContainer *robotContainer = nullptr;
 static auto& chassis = Drivetrain::getInstance().chassis;
 
 
@@ -34,15 +33,15 @@ void on_center_button() {
  */
 void initialize() {
   pros::lcd::initialize();
-  
+
   chassis.calibrate();
   chassis.setPose(0, 0, 0);
 
-  // Create RobotContainer which wires subsystems and commands
-  robotContainer = new RobotContainer();
-  if (robotContainer) {
-    robotContainer->getAutonSelector()->initialize();
-  }
+  // Initialize global wiring (subsystems, pistons, auton selector)
+  Globals::init();
+
+  // autonSelector is an object, not a pointer
+  Globals::autonSelector.initialize();
 }
 
 /**
@@ -77,28 +76,23 @@ void competition_initialize() {
  * from where it left off.
  */
 void autonomous() {
-  if (robotContainer) {
-    auto routine = robotContainer->getAutonSelector()->getSelectedAuton();
+  auto selector = Globals::autonSelector;
 
-    if (routine) {
-
-      // Run the selected autonomous routine
-      routine();
-    }
-
-    pros::Task screen_task([&]() {
-      while (true) {
-        // print robot location to the brain screen
-        // array of lines
-        int i = 0;
-        pros::lcd::print(i++, "AUTON RUNNING");
-        pros::lcd::print(i++, "X: %f", chassis.getPose().x);
-        pros::lcd::print(i++, "Y: %f", chassis.getPose().y);
-        pros::lcd::print(i++, "Theta: %f", chassis.getPose().theta);
-        pros::delay(20);
-      }
-    });
+  auto routine = selector.getSelectedAuton();
+  if (routine) {
+    routine();
   }
+
+  pros::Task screen_task([&]() {
+    while (true) {
+      int i = 0;
+      pros::lcd::print(i++, "AUTON RUNNING");
+      pros::lcd::print(i++, "X: %f", chassis.getPose().x);
+      pros::lcd::print(i++, "Y: %f", chassis.getPose().y);
+      pros::lcd::print(i++, "Theta: %f", chassis.getPose().theta);
+      pros::delay(20);
+    }
+  });
 }
 
 /**
@@ -115,28 +109,19 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-  // The RobotContainer has created subsystems and the default arcade command.
-  // Run the default periodic behavior directly (no Scheduler).
   while (true) {
-    // pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() &
-    // LCD_BTN_LEFT) >> 2,
-    // (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-    // 				 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >>
-    // 0);
+    // Access the selector as an object (Globals::autonSelector is not a pointer)
+    const std::string selectedName = Globals::autonSelector.getSelectedAutonName();
+    const char* name = selectedName.c_str(); // valid while selectedName is in scope
 
-    pros::lcd::print(
-        0, "Auton running: %s",
-        robotContainer->getAutonSelector()->getSelectedAutonName().c_str());
+    pros::lcd::print(0, "Auton running: %s", name);
 
-    if (robotContainer)
-      robotContainer->runPeriodic();
+    Globals::periodic();
     pros::delay(10);
 
-    if (true) {
-      if (robotContainer->master.get_digital_new_press(
-              pros::E_CONTROLLER_DIGITAL_DOWN)) {
-        autonomous();
-      }
+    if (Globals::master.get_digital_new_press(
+            pros::E_CONTROLLER_DIGITAL_DOWN)) {
+      autonomous();
     }
   }
 }

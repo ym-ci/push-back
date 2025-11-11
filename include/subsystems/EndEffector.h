@@ -10,7 +10,7 @@ public:
     static EndEffector& getInstance();
 
     // Configure singleton (call once early)
-    static void initialize(pros::Controller* controller, Piston* blocker);
+    static void initialize();
 
     // Delete copy/move
     EndEffector(const EndEffector&) = delete;

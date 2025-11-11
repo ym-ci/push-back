@@ -1,15 +1,12 @@
 #pragma once
 
-#include "RobotContainer.h"
-
 namespace auton {
-    // Initialize autonomous functions
-    void init(RobotContainer* container);
-    
-    // Different autonomous routines
+    // Initialize autonomous globals (uses Globals namespace instead of RobotContainer)
+    void init();
+
+    // Autonomous routines (selected via AutonSelector)
     void simpleForward();
     void redLeft();
     void blueRight();
     void skills();
-    
 }

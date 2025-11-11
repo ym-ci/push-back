@@ -9,7 +9,7 @@ public:
     static Intake& getInstance();
 
     // Configure singleton (call once early)
-    static void initialize(pros::Controller* controller);
+    static void initialize();
 
     // Delete copy/move
     Intake(const Intake&) = delete;

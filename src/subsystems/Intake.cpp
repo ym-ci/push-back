@@ -1,5 +1,6 @@
 
 #include "subsystems/Intake.h"
+#include "Globals.h"
 
 // Velocities (kept internal)
 namespace {
@@ -12,11 +13,11 @@ namespace {
 Intake* Intake::instance = nullptr;
 
 // Configure singleton
-void Intake::initialize(pros::Controller* controller) {
+void Intake::initialize() {
     if (instance != nullptr) return;
 
     instance = new Intake();
-    instance->controller = controller;
+    instance->controller = &Globals::master;
 
     // Ports copied from RobotContainer
     instance->intakeMotor = std::make_unique<pros::Motor>(4);

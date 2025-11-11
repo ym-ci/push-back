@@ -1,4 +1,5 @@
 #include "subsystems/EndEffector.h"
+#include "Globals.h"
 
 // Velocities (internal)
 namespace {
@@ -12,12 +13,12 @@ namespace {
 EndEffector* EndEffector::instance = nullptr;
 
 // Configure singleton
-void EndEffector::initialize(pros::Controller* controller, Piston* blocker) {
+void EndEffector::initialize() {
     if (instance != nullptr) return;
 
     instance = new EndEffector();
-    instance->controller = controller;
-    instance->blocker = blocker;
+    instance->controller = &Globals::master;
+    instance->blocker = &Globals::blocker;
 
     // Port copied from RobotContainer (21)
     instance->endEffectorMotor = std::make_unique<pros::Motor>(21);
