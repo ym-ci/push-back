@@ -1,11 +1,49 @@
 #include "subsystems/Drivetrain.h"
+#include "Intake.h"
 #include "lemlib/chassis/trackingWheel.hpp"
 #include "pros/llemu.hpp"
 #include "pros/motor_group.hpp"
 #include "pros/imu.hpp"
+#include "Globals.h"
+#include <iostream>
 
 // Static instance pointer
 Drivetrain* Drivetrain::instance = nullptr;
+
+lemlib::ControllerSettings lateralController(16,  // proportional gain (kP)
+                                              1.5,   // integral gain (kI)
+                                              0.4, // derivative gain (kD)
+                                              3,   // anti windup
+                                              1,   // small error range, in inches
+                                              100, // small error range timeout, in milliseconds
+                                              3,   // large error range, in inches
+                                              500, // large error range timeout, in milliseconds
+                                              25   // maximum acceleration (slew)
+);
+
+
+// angular PID controller
+lemlib::ControllerSettings angularController(2.5,    // proportional gain (kP)
+                                              0,    // integral gain (kI)
+                                              9.5, // derivative gain (kD)
+                                              3,    // anti windup
+                                              1,    // small error range, in degrees
+                                              100,  // small error range timeout, in milliseconds
+                                              2,    // large error range, in degrees
+                                              500,  // large error range timeout, in milliseconds
+                                              0     // maximum acceleration (slew)
+);
+
+
+// Private default constructor
+// Note: chassis is reconstructed in initialize() using placement-new
+Drivetrain::Drivetrain()
+    : chassis(
+        lemlib::Drivetrain(nullptr, nullptr, 0.0f, lemlib::Omniwheel::NEW_275, 0, 0.0f),
+        lateralController,
+        angularController,
+        lemlib::OdomSensors(nullptr, nullptr, nullptr, nullptr, nullptr)
+    ) {}
 
 // Static initializer: sets up motors, drivetrain, odom, and chassis singleton
 void Drivetrain::initialize() {
@@ -27,20 +65,20 @@ void Drivetrain::initialize() {
     instance->lemlibDrivetrain = std::make_unique<lemlib::Drivetrain>(
         instance->leftGroup.get(),
         instance->rightGroup.get(),
-        10.0f,
+        12.194788f,
         lemlib::Omniwheel::NEW_275,
         450,
         2.0f
     );
 
     // Odom + IMU (matching previous RobotContainer config)
-    static pros::Rotation horizontalRotation(2);
+    static pros::Rotation horizontalRotation(20);
     static lemlib::TrackingWheel horizontalTrackingWheel(
         &horizontalRotation,
         lemlib::Omniwheel::NEW_2,
         -2
     );
-    static pros::Imu imu(1);
+    static pros::Imu imu(9);
 
     lemlib::OdomSensors sensors(
         nullptr,
@@ -57,6 +95,24 @@ void Drivetrain::initialize() {
         lemlib::ControllerSettings(2, 0, 10, 3, 1, 100, 3, 500, 5),
         sensors
     );
+
+    instance->chassis.calibrate();
+    instance->chassis.setPose(0, 0, 0);
+
+    pros::lcd::initialize();
+
+      pros::Task screen_task([&]() {
+    while (true) {
+      int i = 0;
+      pros::lcd::print(i++, "X: %f", instance->chassis.getPose().x);
+      pros::lcd::print(i++, "Y: %f", instance->chassis.getPose().y);
+      pros::lcd::print(i++, "Theta: %f", instance->chassis.getPose().theta);
+      pros::delay(20);
+
+    //   std::cout << "Task Looped" << std::endl;
+    }
+  });
+
 }
 
 // Accessor for singleton instance (assumes initialize() called)
@@ -74,24 +130,17 @@ void Drivetrain::stop() {
 }
 
 void Drivetrain::periodic() {
-    // LemLib chassis handles its own internal periodic updates if needed
+ chassis.curvature(Globals::master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y), Globals::master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X));
 }
 
-void Drivetrain::runArcade(pros::Controller* controller) {
-    if (!controller) return;
-    int forward = controller->get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-    int turn = controller->get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-    arcadeDrive(forward, turn);
-}
-
-void Drivetrain::runTank(pros::Controller* controller) {
-    if (!controller) return;
-
-    // Print the left and right values to the LCD for debugging
-
-    int left = controller->get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-    int right = controller->get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
-    // pros::lcd::print(3, "Left: %d", left);
-    // pros::lcd::print(4, "Right: %d", right);
-    chassis.tank(left, right);
-}
+    void Drivetrain::simpleForward() {
+        // chassis.setPose(0, 0, 0);
+        // Print a debug message
+        std::cout << "Starting simpleForward autonomous routine." << std::endl;
+        chassis.moveToPose(0, 24, 0, 10000);
+        Intake::getInstance().intake();
+        chassis.waitUntilDone();
+        Intake::getInstance().stop();
+        chassis.moveToPose(0, 0, 180, 10000);
+        chassis.waitUntilDone();
+    }

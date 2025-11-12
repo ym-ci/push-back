@@ -27,7 +27,8 @@ public:
      void runTank(pros::Controller* controller);
  
      lemlib::Chassis chassis;
- 
+
+     void simpleForward();
  private:
      // Private default constructor so we can allocate in initialize()
      Drivetrain();

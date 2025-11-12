@@ -1,9 +1,7 @@
 #include "Globals.h"
-#include "ui/AutonSelector.h"
 #include "subsystems/Intake.h"
 #include "subsystems/EndEffector.h"
 #include "subsystems/Piston.h"
-#include "auton/auton.h"
 #include "subsystems/Drivetrain.h"
 
 // Define Globals storage
@@ -16,9 +14,6 @@ namespace Globals {
             []() { return master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B); },
             'D'
         );
-
-    AutonSelector autonSelector = AutonSelector();
-;
 
     void init() {
         // Initialize singleton subsystems and their owned hardware
@@ -33,11 +28,6 @@ namespace Globals {
         // EndEffector singleton (owns its motor, uses blocker piston + controller)
         EndEffector::initialize();
 
-        // Add autonomous routines to the selector
-        autonSelector.addAuton("Simple Forward", auton::simpleForward);
-        autonSelector.addAuton("Red Left", auton::redLeft);
-        autonSelector.addAuton("Blue Right", auton::blueRight);
-        autonSelector.addAuton("Skills", auton::skills);
     }
 
 

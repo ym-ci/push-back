@@ -1,7 +1,6 @@
 #pragma once
 #include "pros/misc.hpp" // for pros::Controller
 #include "subsystems/Piston.h"
-#include "ui/AutonSelector.h"
 
 namespace lemlib { class Drivetrain; class Chassis; }
 
@@ -14,7 +13,6 @@ namespace Globals {
     extern Piston blocker;
 
     // Autonomous selector and sequences
-    extern AutonSelector autonSelector;
 
     // Initialization / teardown
     void init();
