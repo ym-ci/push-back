@@ -26,7 +26,7 @@ public:
      // Run tank drive using a controller (reads axes and drives)
      void runTank(pros::Controller* controller);
  
-     lemlib::Chassis chassis;
+     std::unique_ptr<lemlib::Chassis> chassis;
 
      void simpleForward();
      void leftAuton();

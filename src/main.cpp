@@ -6,7 +6,7 @@
 #include "subsystems/Drivetrain.h"
 #include "ui/auton_selector.h"
 
-static auto& chassis = Drivetrain::getInstance().chassis;
+// static auto& chassis = Drivetrain::getInstance().chassis;
 
 bool devMode = true;
 
