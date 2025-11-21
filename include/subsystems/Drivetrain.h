@@ -29,6 +29,8 @@ public:
      lemlib::Chassis chassis;
 
      void simpleForward();
+     void leftAuton();
+     void coordDisplayInit();
  private:
      // Private default constructor so we can allocate in initialize()
      Drivetrain();

@@ -40,5 +40,8 @@ namespace Globals {
 
         // End effector periodic (singleton)
         EndEffector::getInstance().periodic();
+        tounge.periodic();
+        blocker.periodic();
+        
     }
 }

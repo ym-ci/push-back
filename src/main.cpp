@@ -4,8 +4,11 @@
 #include "pros/misc.h"
 #include "pros/misc.hpp"
 #include "subsystems/Drivetrain.h"
+#include "ui/auton_selector.h"
 
 static auto& chassis = Drivetrain::getInstance().chassis;
+
+bool devMode = true;
 
 
 /**
@@ -35,10 +38,14 @@ void initialize() {
 
   // Initialize global wiring (subsystems, pistons, auton selector)
   Globals::init();
+  // AutonSelector::init();
 
-  // 
+  if (devMode) {
+    Drivetrain::getInstance().coordDisplayInit();
 
-
+  } else {
+    AutonSelector::init();
+  }
 }
 
 /**
@@ -74,7 +81,11 @@ void competition_initialize() {
  */
 void autonomous() {
 
-  Drivetrain::getInstance().simpleForward();
+  if (devMode) {
+    Drivetrain::getInstance().leftAuton();
+  } else {
+    AutonSelector::runSelectedAuton();
+  }
 
 
   // Drivetrain::getInstance().chassis.turnToHeading(90, 1000000);
@@ -102,7 +113,7 @@ void opcontrol() {
     pros::delay(10);
 
     if (Globals::master.get_digital_new_press(
-            pros::E_CONTROLLER_DIGITAL_DOWN)) {
+            pros::E_CONTROLLER_DIGITAL_DOWN) && devMode) {
       autonomous();
     }
 
