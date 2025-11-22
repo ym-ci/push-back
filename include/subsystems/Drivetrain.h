@@ -3,6 +3,26 @@
 #include "lemlib/chassis/chassis.hpp"
 #include "pros/misc.hpp"
 
+// Define motor port lists here so they are easy to change project-wide.
+// Use a preprocessor list so it can be used inside braced-init-lists.
+#define RIGHT_MOTOR_PORTS 11, 1, 17
+#define LEFT_MOTOR_PORTS -13, -15, -19
+
+// Lemlib drivetrain configuration constants
+#define DRIVETRAIN_WHEEL_DIAMETER 12.194788f
+#define DRIVETRAIN_OMNIWHEEL lemlib::Omniwheel::NEW_275
+#define DRIVETRAIN_GEARSET 450
+#define DRIVETRAIN_TRACK_WIDTH 2.0f
+
+// Expo curve configuration (throttle + steer)
+#define THROTTLE_DEADBAND 3
+#define THROTTLE_MIN_OUTPUT 10
+#define THROTTLE_EXPO_GAIN 1.019f
+
+#define STEER_DEADBAND 3
+#define STEER_MIN_OUTPUT 10
+#define STEER_EXPO_GAIN 1.019f
+
 class Drivetrain : public command::Subsystem {
 public:
     // Access singleton instance
@@ -26,7 +46,7 @@ public:
      // Run tank drive using a controller (reads axes and drives)
      void runTank(pros::Controller* controller);
  
-     std::unique_ptr<lemlib::Chassis> chassis;
+    static lemlib::Chassis chassis;
 
      void simpleForward();
      void leftAuton();
@@ -37,9 +57,9 @@ public:
  
      static Drivetrain* instance;
  
-     std::unique_ptr<pros::MotorGroup> leftGroup;
-     std::unique_ptr<pros::MotorGroup> rightGroup;
-     // Stored chassis object; lifetime managed by Drivetrain singleton
-     std::unique_ptr<lemlib::Drivetrain> lemlibDrivetrain;
+    pros::MotorGroup* leftGroup = nullptr;
+    pros::MotorGroup* rightGroup = nullptr;
+    // Stored drivetrain helper (lifetime managed by statics in initialize)
+    lemlib::Drivetrain* lemlibDrivetrain = nullptr;
 };
 
