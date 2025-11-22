@@ -130,14 +130,14 @@ void Drivetrain::simpleForward() {
   // chassis->setPose(0, 0, 0);
   // Print a debug message
   // std::cout << "Starting simpleForward autonomous routine." << std::endl;
-  chassis.moveToPose(0, 24, 0, 10000);
-  chassis.waitUntilDone();
-  chassis.turnToHeading(180, 10000);
-  chassis.waitUntilDone();
-  // pros::c::delay(1000);
-  chassis.turnToHeading(0, 10000);
-  chassis.moveToPose(0, 0, 180, 10000);
-  chassis.waitUntilDone();
+  chassis.moveToPose(0, 12, 0, 10000);
+  // chassis.waitUntilDone();
+  // chassis.turnToHeading(180, 10000);
+  // chassis.waitUntilDone();
+  // // pros::c::delay(1000);
+  // chassis.turnToHeading(0, 10000);
+  // chassis.moveToPose(0, 0, 180, 10000);
+  // chassis.waitUntilDone();
 }
 
 void Drivetrain::leftAuton() {
