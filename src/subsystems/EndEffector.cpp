@@ -37,11 +37,13 @@ void EndEffector::scoreMiddle() {
 void EndEffector::scoreTop() {
     if (!endEffectorMotor) return;
     endEffectorMotor->move_velocity(topVel);
+    if (blocker) blocker->extend();
 }
 
 void EndEffector::intake() {
     if (!endEffectorMotor) return;
     endEffectorMotor->move_velocity(intakeVel);
+    if (blocker) blocker->retract();
 }
 
 void EndEffector::outtake() {
@@ -63,14 +65,12 @@ void EndEffector::runWithController() {
     if (l1 && !l2) {
         // Score to top
         scoreTop();
-        if (blocker) blocker->extend();
     } else if (l2 && !l1) {
         // Score to middle
         scoreMiddle();
     } else if (r1 && !r2) {
         // Intake
         intake();
-        if (blocker) blocker->retract();
     } else if (r2 && !r1) {
         // Outtake
         outtake();
