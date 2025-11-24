@@ -41,7 +41,7 @@ void initialize() {
   // AutonSelector::init();
 
   if (devMode) {
-    Drivetrain::getInstance().coordDisplayInit();
+    Drivetrain::coordDisplayInit();
 
   } else {
     AutonSelector::init();
@@ -82,9 +82,9 @@ void competition_initialize() {
 void autonomous() {
 
   if (devMode) {
-    Drivetrain::getInstance().simpleForward();
+    Drivetrain::simpleForward();
   } else {
-    AutonSelector::runSelectedAuton();
+    Drivetrain::simpleForward();
   }
 
 

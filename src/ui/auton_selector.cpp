@@ -25,22 +25,22 @@ void AutonSelector::init() {
 void AutonSelector::runSelectedAuton() {
     switch(selectedAuton) {
         case 0: // Red Left
-            Drivetrain::getInstance().leftAuton();
+            Drivetrain::leftAuton();
             break;
         case 1: // Red Right
-            // Drivetrain::getInstance().rightAuton();
+            // Drivetrain::rightAuton();
             break;
         case 2: // Blue Left
-            // Drivetrain::getInstance().leftAuton(); // Maybe mirrored?
+            // Drivetrain::leftAuton(); // Maybe mirrored?
             break;
         case 3: // Blue Right
-            // Drivetrain::getInstance().rightAuton();
+            // Drivetrain::rightAuton();
             break;
         case 4: // Skills
-            // Drivetrain::getInstance().skillsAuton();
+            // Drivetrain::skillsAuton();
             break;
         case 5: // Simple Forward
-            Drivetrain::getInstance().simpleForward();
+            Drivetrain::simpleForward();
             break;
         case 6: // None
         default:

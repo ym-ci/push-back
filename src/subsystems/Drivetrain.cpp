@@ -15,8 +15,8 @@
 
 // File-scope static objects for drivetrain configuration. These live for the
 // program lifetime and are used to initialize the static `Drivetrain::chassis`.
-static pros::MotorGroup s_rightGroup(std::initializer_list<std::int8_t>{RIGHT_MOTOR_PORTS});
-static pros::MotorGroup s_leftGroup(std::initializer_list<std::int8_t>{LEFT_MOTOR_PORTS});
+static pros::MotorGroup s_rightGroup(std::vector<std::int8_t>{RIGHT_MOTOR_PORTS});
+static pros::MotorGroup s_leftGroup(std::vector<std::int8_t>{LEFT_MOTOR_PORTS});
 
 static lemlib::Drivetrain s_lemlibDrivetrain(&s_leftGroup, &s_rightGroup,
                       DRIVETRAIN_WHEEL_DIAMETER,
@@ -61,30 +61,18 @@ static lemlib::ExpoDriveCurve s_steerCurve(STEER_DEADBAND, STEER_MIN_OUTPUT, STE
 // Define the static chassis (uses other file-scope statics above).
 lemlib::Chassis Drivetrain::chassis(s_lemlibDrivetrain, s_lateralController, s_angularController, s_sensors, &s_throttleCurve, &s_steerCurve);
 
-Drivetrain *Drivetrain::instance = nullptr;
 
-// Private default constructor
-// Note: chassis is reconstructed in initialize() using placement-new
-Drivetrain::Drivetrain() {}
+
+
 
 // Static initializer: sets up motors, drivetrain, odom, and chassis singleton
 void Drivetrain::initialize() {
-  if (instance != nullptr)
-    return;
+    static bool initialized = false;
+    if (initialized) return;
+    initialized = true;
 
-    // (controllers are file-scope statics: s_lateralController, s_angularController)
-
-  // Construct singleton instance (private ctor)
-  instance = new Drivetrain();
-
-    // Assign pointers to the file-scope statics created above.
-    instance->rightGroup = &s_rightGroup;
-    instance->leftGroup = &s_leftGroup;
-
-    instance->rightGroup->set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-    instance->leftGroup->set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-
-    instance->lemlibDrivetrain = &s_lemlibDrivetrain;
+    s_rightGroup.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    s_leftGroup.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 
   // Use the file-scope `s_sensors`, `s_throttleCurve`, and `s_steerCurve`.
   // Calibrate and set pose on the static chassis object.
@@ -98,9 +86,11 @@ void Drivetrain::coordDisplayInit() {
   pros::Task screen_task([&]() {
     while (true) {
       int i = 0;
-      pros::lcd::print(i++, "X: %f", chassis.getPose().x);
-      pros::lcd::print(i++, "Y: %f", chassis.getPose().y);
-      pros::lcd::print(i++, "Theta: %f", chassis.getPose().theta);
+      // pros::lcd::print(i++, "X: %f", chassis.getPose().x);
+      // pros::lcd::print(i++, "Y: %f", chassis.getPose().y);
+      // pros::lcd::print(i++, "Theta: %f", chassis.getPose().theta);
+      // All in one line at the bottom centerned
+      pros::lcd::print(5, "X: %f Y: %f Theta: %f", chassis.getPose().x, chassis.getPose().y, chassis.getPose().theta);
       pros::delay(20);
 
       //   std::cout << "Task Looped" << std::endl;
@@ -108,11 +98,7 @@ void Drivetrain::coordDisplayInit() {
   });
 }
 
-// Accessor for singleton instance (assumes initialize() called)
-Drivetrain &Drivetrain::getInstance() {
-  // No lazy initialization here to keep ports/config explicit via initialize()
-  return *instance;
-}
+
 
 void Drivetrain::arcadeDrive(int forward, int turn) {
   chassis.arcade(forward, turn);
@@ -127,10 +113,10 @@ void Drivetrain::periodic() {
 }
 
 void Drivetrain::simpleForward() {
-  // chassis->setPose(0, 0, 0);
+  chassis.setPose(0, 0, 0);
   // Print a debug message
   // std::cout << "Starting simpleForward autonomous routine." << std::endl;
-  chassis.moveToPose(0, 12, 0, 10000);
+  chassis.moveToPose(0, -12, 0, 10000);
   // chassis.waitUntilDone();
   // chassis.turnToHeading(180, 10000);
   // chassis.waitUntilDone();

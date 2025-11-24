@@ -33,7 +33,7 @@ namespace Globals {
 
     void periodic() {
         // Drivetrain tank drive and periodic (singleton)
-        Drivetrain::getInstance().periodic();
+        Drivetrain::periodic();
 
         // Intake periodic (singleton)
         Intake::getInstance().periodic();
