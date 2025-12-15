@@ -40,6 +40,7 @@ namespace Drivetrain {
 
      void simpleForward();
      void leftAuton();
+     void rightAuton();
      void coordDisplayInit();
 }
 
