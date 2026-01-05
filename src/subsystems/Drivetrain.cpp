@@ -31,21 +31,21 @@ static pros::Imu imu(9);
 static lemlib::OdomSensors s_sensors(nullptr, nullptr, &horizontalTrackingWheel, nullptr, &imu);
 
 static lemlib::ControllerSettings s_lateralController(
-  27,  // proportional gain (kP)
+  30,  // proportional gain (kP)
   10,   // integral gain (kI)
   0,   // derivative gain (kD)
   20,   // anti windup
-  0.5,   // small error range, in inches
+  0.25,   // small error range, in inches
   200,   // small error range timeout, in milliseconds
-  1,   // large error range, in inches
-  500,   // large error range timeout, in milliseconds
-  20    // maximum acceleration (slew)
+  0.75,   // large error range, in inches
+  400,   // large error range timeout, in milliseconds
+  10    // maximum acceleration (slew)
 );
 
 static lemlib::ControllerSettings s_angularController(
-  2.5,  // proportional gain (kP)
+  2,  // proportional gain (kP)
   0.1,  // integral gain (kI)
-  0, // derivative gain (kD)
+  0.5, // derivative gain (kD)
   10,    // anti windup
   1, // small error range, in degrees
   100,  // small error range timeout, in milliseconds
@@ -155,14 +155,53 @@ void Drivetrain::rightAuton() {
   chassis.moveToPose(0, -26, 0, 2000, {.forwards = false, .maxSpeed=40, .minSpeed=20});
   chassis.waitUntilDone();
   pros::delay(20);
-  chassis.moveToPose(0, -36, 0, 2000, {.forwards = false, .maxSpeed=20});
+  chassis.moveToPose(0, -38, 0, 2000, {.forwards = false, .maxSpeed=20});
   chassis.waitUntilDone();
   pros::delay(500);
+
   chassis.moveToPose(-7.12, -8.5, 260.5, 2500, {.minSpeed=80});
   chassis.waitUntilDone();
-  chassis.moveToPose(-26.5, -27, 172.7, 2500);
+  Intake::getInstance().stop();
+  EndEffector::getInstance().stop();
+  chassis.moveToPose(-27, -20, -191, 5000, {.minSpeed=30});
   chassis.waitUntilDone();
+  chassis.moveToPose(-25.75, -29, -191, 750);
+  chassis.waitUntilDone();
+  chassis.arcade(100, 0);
+  Intake::getInstance().outtake();
+  EndEffector::getInstance().outtake();
+  pros::delay(100);
+  Intake::getInstance().stop();
+  EndEffector::getInstance().stop();
+  pros::delay(400);
+  chassis.arcade(0, 0);
   Intake::getInstance().score();
   EndEffector::getInstance().scoreTop();
-  pros::delay(5000);
+  pros::delay(2000);
+  Intake::getInstance().stop();
+  EndEffector::getInstance().stop();
+  chassis.setPose(0, 0, chassis.getPose().theta);
+  Globals::tounge.extend();
+
+  chassis.arcade(-80, 0);
+  pros::delay(2000);
+  chassis.arcade(0, 0);
+  Intake::getInstance().intake();
+  EndEffector::getInstance().intake();
+  Globals::tounge.retract();
+  chassis.turnToHeading(-180, 500);
+  chassis.waitUntilDone();
+  Globals::tounge.extend();
+  chassis.turnToHeading(-200, 500);
+  chassis.waitUntilDone();
+  pros::delay(1500);
+  chassis.moveToPose(0, 0, -191, 2500);
+  chassis.waitUntilDone();
+  chassis.arcade(100, 0);
+  pros::delay(500);
+  chassis.arcade(0, 0);
+  Intake::getInstance().score();
+  EndEffector::getInstance().scoreTop();
+  pros::delay(10000);
+
 }
