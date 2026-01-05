@@ -148,6 +148,7 @@ void Drivetrain::leftAuton() {
 
 void Drivetrain::rightAuton() {
   // chassis.calibrate();
+  // Intake the group of three 
   Intake::getInstance().intake();
   EndEffector::getInstance().intake();
   chassis.moveToPose(0, -15, 0, 2000, {.forwards = false, .minSpeed=40});
@@ -159,14 +160,17 @@ void Drivetrain::rightAuton() {
   chassis.waitUntilDone();
   pros::delay(500);
 
+  // Big curve to the right to align with the goal 
   chassis.moveToPose(-7.12, -8.5, 260.5, 2500, {.minSpeed=80});
   chassis.waitUntilDone();
+  // Just so we dont over do it
   Intake::getInstance().stop();
   EndEffector::getInstance().stop();
   chassis.moveToPose(-27, -20, -191, 5000, {.minSpeed=30});
   chassis.waitUntilDone();
   chassis.moveToPose(-25.75, -29, -191, 750);
   chassis.waitUntilDone();
+  // Force the alignment and unstuck some balls
   chassis.arcade(100, 0);
   Intake::getInstance().outtake();
   EndEffector::getInstance().outtake();
@@ -175,19 +179,23 @@ void Drivetrain::rightAuton() {
   EndEffector::getInstance().stop();
   pros::delay(400);
   chassis.arcade(0, 0);
+  // Score the preloaded balls
   Intake::getInstance().score();
   EndEffector::getInstance().scoreTop();
   pros::delay(2000);
   Intake::getInstance().stop();
   EndEffector::getInstance().stop();
+  // Because we have aligned we can assume a new know pose
   chassis.setPose(0, 0, chassis.getPose().theta);
+  // Go get more balls at the match loader
   Globals::tounge.extend();
-
+  // literally do it manually because path planner is being dumb
   chassis.arcade(-80, 0);
   pros::delay(2000);
   chassis.arcade(0, 0);
   Intake::getInstance().intake();
   EndEffector::getInstance().intake();
+  // jiggle the balls a bit and intake
   Globals::tounge.retract();
   chassis.turnToHeading(-180, 500);
   chassis.waitUntilDone();
@@ -195,11 +203,14 @@ void Drivetrain::rightAuton() {
   chassis.turnToHeading(-200, 500);
   chassis.waitUntilDone();
   pros::delay(1500);
+  // go back to scoring position
   chassis.moveToPose(0, 0, -191, 2500);
   chassis.waitUntilDone();
+  // Force the alignment again
   chassis.arcade(100, 0);
   pros::delay(500);
   chassis.arcade(0, 0);
+  // Score the balls
   Intake::getInstance().score();
   EndEffector::getInstance().scoreTop();
   pros::delay(10000);
