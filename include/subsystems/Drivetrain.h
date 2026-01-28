@@ -41,6 +41,7 @@ namespace Drivetrain {
      void simpleForward();
      void leftAuton();
      void rightAuton();
+     void skillsAuton();
      void coordDisplayInit();
 }
 

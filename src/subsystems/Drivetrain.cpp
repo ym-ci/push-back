@@ -161,7 +161,7 @@ void Drivetrain::rightAuton() {
   pros::delay(500);
 
   // Big curve to the right to align with the goal 
-  chassis.moveToPose(-7.12, -8.5, 260.5, 2500, {.minSpeed=80});
+  chassis.moveToPose(-7.12, -8.5, 260.5, 2500, {.minSpeed=40});
   chassis.waitUntilDone();
   // Just so we dont over do it
   Intake::getInstance().stop();
@@ -215,4 +215,68 @@ void Drivetrain::rightAuton() {
   EndEffector::getInstance().scoreTop();
   pros::delay(10000);
 
+}
+
+/*  */
+
+
+void Drivetrain::skillsAuton() {
+  // chassis.calibrate();
+  // Intake the group of three 
+  chassis.setPose(0, 0, 40.42);
+  Intake::getInstance().intake();
+  EndEffector::getInstance().intake();
+  chassis.moveToPose(-8.565553, -10.531500, 40.42, 2000, {.forwards = false, .minSpeed=60});
+  chassis.waitUntilDone();
+  chassis.moveToPose(-16.719, -20.066, 40.42, 2000, {.forwards = false, .maxSpeed=40});
+  chassis.waitUntilDone();
+  pros::delay(500);
+  chassis.moveToPose(-23.826, -33.717, 17.5, 2000, {.forwards = false, .maxSpeed=60});
+  chassis.waitUntilDone();
+  chassis.moveToPose(-16.895, -13.277, -24.8, 2000, {.minSpeed=60});
+  chassis.waitUntilDone();
+  chassis.moveToPose(-44, -8.083, -91.81, 2000);
+  chassis.waitUntilDone();
+  chassis.turnToHeading(180, 2000);
+  chassis.moveToPose(-39, -12.383, -180, 500, {.minSpeed=60});
+  chassis.waitUntilDone();
+  chassis.arcade(60, 0);
+  pros::delay(750);
+  chassis.arcade(0, 0);
+  Intake::getInstance().score();
+  EndEffector::getInstance().scoreTop();
+  Globals::tounge.extend();
+  pros::delay(1500);
+  // go to match loader
+  chassis.moveToPose(-37, 15, -179.1, 2500, {.forwards=false, .minSpeed=80});
+  chassis.waitUntilDone();
+  chassis.arcade(-80, 0);
+  pros::delay(1000);
+  chassis.arcade(0, 0);
+  Intake::getInstance().intake();
+  EndEffector::getInstance().intake();
+  // jiggle the balls a bit and intake
+  Globals::tounge.retract();
+  chassis.turnToHeading(-175, 500);
+  chassis.waitUntilDone();
+  Globals::tounge.extend();
+  chassis.turnToHeading(-180, 500);
+  chassis.waitUntilDone();
+  chassis.arcade(-60, 0);
+  pros::delay(500);
+  chassis.arcade(0, 0);
+  pros::delay(2000);
+  pros::delay(500);
+  pros::delay(1500);
+  // go back to scoring position
+  chassis.turnToHeading(180, 2000);
+  chassis.moveToPose(-39, -12.383, -180, 1000, {.minSpeed=60});
+  chassis.waitUntilDone();
+  // Force the alignment again
+  chassis.arcade(60, 0);
+  pros::delay(750);
+  chassis.arcade(0, 0);
+  Intake::getInstance().score();
+  EndEffector::getInstance().scoreTop();
+  pros::delay(10000);
 }

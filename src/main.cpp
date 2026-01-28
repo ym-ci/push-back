@@ -82,7 +82,7 @@ void competition_initialize() {
 void autonomous() {
 
   if (devMode) {
-    Drivetrain::rightAuton();
+    Drivetrain::skillsAuton();
   } else {
     Drivetrain::simpleForward();
   }
