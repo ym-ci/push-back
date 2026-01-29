@@ -248,7 +248,7 @@ void Drivetrain::skillsAuton() {
   Globals::tounge.extend();
   pros::delay(1500);
   // go to match loader
-  chassis.moveToPose(-37, 15, -179.1, 2500, {.forwards=false, .minSpeed=80});
+  chassis.moveToPose(-39, 15, -180, 2500, {.forwards=false, .minSpeed=80});
   chassis.waitUntilDone();
   chassis.arcade(-80, 0);
   pros::delay(1000);
@@ -270,7 +270,9 @@ void Drivetrain::skillsAuton() {
   pros::delay(1500);
   // go back to scoring position
   chassis.turnToHeading(180, 2000);
-  chassis.moveToPose(-39, -12.383, -180, 1000, {.minSpeed=60});
+  chassis.moveToPose(-37, -12.383, -180, 1000, {.minSpeed=60});
+  chassis.waitUntilDone();
+  chassis.turnToHeading(180, 2000);
   chassis.waitUntilDone();
   // Force the alignment again
   chassis.arcade(60, 0);
