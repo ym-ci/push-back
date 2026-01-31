@@ -149,11 +149,12 @@ void Drivetrain::leftAuton() {
 void Drivetrain::rightAuton() {
   // chassis.calibrate();
   // Intake the group of three 
+  chassis.setPose(0, 0, 0);
   Intake::getInstance().intake();
   EndEffector::getInstance().intake();
-  chassis.moveToPose(0, -15, 0, 2000, {.forwards = false, .minSpeed=40});
+  chassis.moveToPose(-1, -15, 0, 2000, {.forwards = false, .minSpeed=40});
   chassis.waitUntilDone();
-  chassis.moveToPose(0, -26, 0, 2000, {.forwards = false, .maxSpeed=40, .minSpeed=20});
+  chassis.moveToPose(-1, -26, 0, 2000, {.forwards = false, .maxSpeed=40, .minSpeed=20});
   chassis.waitUntilDone();
   pros::delay(20);
   chassis.moveToPose(0, -38, 0, 2000, {.forwards = false, .maxSpeed=20});
@@ -164,37 +165,34 @@ void Drivetrain::rightAuton() {
   chassis.moveToPose(-7.12, -8.5, 260.5, 2500, {.minSpeed=40});
   chassis.waitUntilDone();
   // Just so we dont over do it
-  Intake::getInstance().stop();
-  EndEffector::getInstance().stop();
-  chassis.moveToPose(-27, -20, -191, 5000, {.minSpeed=30});
+  chassis.moveToPose(-26, -20, -191, 5000, {.minSpeed=30});
   chassis.waitUntilDone();
-  chassis.moveToPose(-25.75, -29, -191, 750);
+  chassis.moveToPose(-25, -29, -191, 750);
   chassis.waitUntilDone();
   // Force the alignment and unstuck some balls
   chassis.arcade(100, 0);
-  Intake::getInstance().outtake();
-  EndEffector::getInstance().outtake();
-  pros::delay(100);
-  Intake::getInstance().stop();
-  EndEffector::getInstance().stop();
-  pros::delay(400);
+  pros::delay(500);
   chassis.arcade(0, 0);
   // Score the preloaded balls
   Intake::getInstance().score();
   EndEffector::getInstance().scoreTop();
-  pros::delay(2000);
+  pros::delay(1500);
   Intake::getInstance().stop();
   EndEffector::getInstance().stop();
   // Because we have aligned we can assume a new know pose
   chassis.setPose(0, 0, chassis.getPose().theta);
   // Go get more balls at the match loader
   Globals::tounge.extend();
+  chassis.moveToPose(0, 10, -191, 1000, {.forwards=false, .minSpeed=80});
+  chassis.waitUntilDone();
+  chassis.turnToHeading(-191, 1000);
+  chassis.waitUntilDone();
+  Intake::getInstance().intake();
+  EndEffector::getInstance().intake();
   // literally do it manually because path planner is being dumb
   chassis.arcade(-80, 0);
   pros::delay(2000);
   chassis.arcade(0, 0);
-  Intake::getInstance().intake();
-  EndEffector::getInstance().intake();
   // jiggle the balls a bit and intake
   Globals::tounge.retract();
   chassis.turnToHeading(-180, 500);
@@ -202,13 +200,13 @@ void Drivetrain::rightAuton() {
   Globals::tounge.extend();
   chassis.turnToHeading(-200, 500);
   chassis.waitUntilDone();
-  pros::delay(1500);
+  pros::delay(400);
   // go back to scoring position
-  chassis.moveToPose(0, 0, -191, 2500);
+  chassis.moveToPose(-0.5, 0, -191, 2500);
   chassis.waitUntilDone();
   // Force the alignment again
   chassis.arcade(100, 0);
-  pros::delay(500);
+  pros::delay(1000);
   chassis.arcade(0, 0);
   // Score the balls
   Intake::getInstance().score();
@@ -226,12 +224,12 @@ void Drivetrain::skillsAuton() {
   chassis.setPose(0, 0, 40.42);
   Intake::getInstance().intake();
   EndEffector::getInstance().intake();
-  chassis.moveToPose(-8.565553, -10.531500, 40.42, 2000, {.forwards = false, .minSpeed=60});
+  chassis.moveToPose(-8, -10, 40.42, 2000, {.forwards = false, .minSpeed=60});
   chassis.waitUntilDone();
   chassis.moveToPose(-16.719, -20.066, 40.42, 2000, {.forwards = false, .maxSpeed=40});
   chassis.waitUntilDone();
   pros::delay(500);
-  chassis.moveToPose(-23.826, -33.717, 17.5, 2000, {.forwards = false, .maxSpeed=60});
+  chassis.moveToPose(-20, -35, 10, 2000, {.forwards = false, .maxSpeed=60});
   chassis.waitUntilDone();
   chassis.moveToPose(-16.895, -13.277, -24.8, 2000, {.minSpeed=60});
   chassis.waitUntilDone();
@@ -248,7 +246,7 @@ void Drivetrain::skillsAuton() {
   Globals::tounge.extend();
   pros::delay(1500);
   // go to match loader
-  chassis.moveToPose(-39, 15, -180, 2500, {.forwards=false, .minSpeed=80});
+  chassis.moveToPose(-40, 15, -180, 2500, {.forwards=false, .minSpeed=80});
   chassis.waitUntilDone();
   chassis.arcade(-80, 0);
   pros::delay(1000);
@@ -260,22 +258,68 @@ void Drivetrain::skillsAuton() {
   chassis.turnToHeading(-175, 500);
   chassis.waitUntilDone();
   Globals::tounge.extend();
-  chassis.turnToHeading(-180, 500);
+  chassis.turnToHeading(-185, 500);
   chassis.waitUntilDone();
   chassis.arcade(-60, 0);
   pros::delay(500);
   chassis.arcade(0, 0);
   pros::delay(2000);
+  Globals::tounge.retract();
+  chassis.turnToHeading(-175, 500);
+  chassis.waitUntilDone();
+  Globals::tounge.extend();
+  chassis.turnToHeading(-185, 500);
+  chassis.waitUntilDone();
+    chassis.arcade(-60, 0);
   pros::delay(500);
-  pros::delay(1500);
+  chassis.arcade(0, 0);
+  pros::delay(1000);
   // go back to scoring position
   chassis.turnToHeading(180, 2000);
-  chassis.moveToPose(-37, -12.383, -180, 1000, {.minSpeed=60});
+  chassis.moveToPose(-37.5, -12.383, -180, 1000, {.minSpeed=60});
   chassis.waitUntilDone();
   chassis.turnToHeading(180, 2000);
   chassis.waitUntilDone();
   // Force the alignment again
-  chassis.arcade(60, 0);
+  chassis.arcade(90, 0);
+  pros::delay(750);
+  chassis.arcade(0, 0);
+  Globals::tounge.retract();
+  Intake::getInstance().score();
+  EndEffector::getInstance().scoreTop();
+  pros::delay(4000);
+  // stop all
+  Intake::getInstance().stop();
+  EndEffector::getInstance().stop();
+
+  //otherside
+  chassis.moveToPose(-37, -1, -180, 1000, {.forwards=false});
+  chassis.waitUntilDone();
+  chassis.turnToPoint(-13, -22, 2000, {.forwards=false});
+  chassis.waitUntilDone();
+  chassis.moveToPose(-13, -22, -45, 2000, {.forwards=false, .minSpeed=60});
+  chassis.waitUntilDone();
+  chassis.turnToPoint(22, -22, 1000, {.forwards=false});
+  chassis.waitUntilDone();
+  Intake::getInstance().intake();
+  EndEffector::getInstance().intake();
+  chassis.moveToPose(22, -22, -90, 2000, {.forwards=false, .minSpeed=40});
+  chassis.waitUntilDone();
+  chassis.moveToPose(35.5, -22, -90, 2000, {.forwards=false, .maxSpeed=40});
+  chassis.waitUntilDone();
+  chassis.moveToPose(50, -22, -90, 4000, {.forwards=false, .maxSpeed=40});
+  chassis.waitUntilDone();
+  chassis.moveToPose(35, 22, -90, 1000);
+  chassis.waitUntilDone();
+  chassis.turnToPoint(60, -1, 1000, {.forwards=false});
+  chassis.waitUntilDone();
+  chassis.moveToPose(60, -1, -110, 2000, {.forwards=false});
+  chassis.waitUntilDone();
+  chassis.turnToHeading(-180, 1000);
+  chassis.waitUntilDone();
+  chassis.moveToPose(58, -15, -180, 2000);
+  chassis.waitUntilDone();
+  chassis.arcade(90, 0);
   pros::delay(750);
   chassis.arcade(0, 0);
   Intake::getInstance().score();
